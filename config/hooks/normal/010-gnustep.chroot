@@ -1,0 +1,41 @@
+#!/bin/bash
+set -ex
+
+mkdir -p /root
+cd /root
+
+# https://github.com/gershwin-desktop/gershwin-build
+git clone https://github.com/gershwin-desktop/gershwin-build.git && cd gershwin-build
+find . -type f -exec sed -i -e 's|set -e|set -ex|g' {} \; # Be verbose
+./bootstrap.sh
+./checkout.sh
+sudo -E make install
+cd /root
+
+. /System/Library/Makefiles/GNUstep.sh
+
+# TODO: Move to gershwin-build
+git clone --recursive https://github.com/probonopd/gershwin-components && cd gershwin-components
+sudo apt-get -y install libdbus-1-dev libpam0g-dev libcurl4-openssl-dev
+cp -r /usr/lib/dbus-1.0/include/dbus /usr/include/ || true # Arch Linux; FIXME: Find a better way
+cp -r /usr/lib/*-linux-gnu/dbus-1.0/include/dbus /usr/include/ || true # Debian; FIXME: Find a better way
+cd Menu
+make -j$(nproc)
+sudo -E make install
+cd -
+cd LoginWindow
+make -j$(nproc)
+sudo -E make install
+cd -
+
+# Everything that comes with the System should be in /System
+mkdir -p /System/Applications /System/Library/Tools
+sudo mv /Local/Applications/* /System/Applications || true
+sudo mv /Local/Library/Tools/* /System/Library/Tools || true
+
+# On Debian-live based systems, Xorg gets started automatically 
+# by /etc/profile.d/zz-live-config_xinit.sh which is created 
+# by /lib/live/config/0140-xinit from the live-config package.
+# By default it starts xterm, but we can tell it which graphical application to start instead
+# using the Debian alternatives system.
+sudo update-alternatives --install /usr/bin/x-session-manager x-session-manager /System/Library/Scripts/Gershwin.sh 40

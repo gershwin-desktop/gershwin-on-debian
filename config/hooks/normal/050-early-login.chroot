@@ -1,0 +1,33 @@
+#!/bin/bash
+set -ex
+
+# Try to start login as early as possible, before all the networking
+# https://www.perplexity.ai/search/fact-check-this-carefully-make-bIodTjvGQAWUC2YE53Kzfw
+
+mkdir -p /etc/systemd/system/getty@tty1.service.d/
+
+cat > /etc/systemd/system/getty@tty1.service.d/early.conf <<\EOF
+[Unit]
+# Before= lists units that this service should be started before (i.e., this unit will be ordered earlier)
+Before=network-online.target network.target sshd.service dhcpcd.service
+# Wants= declares a weaker dependency — try to start basic.target but do not fail if it doesn't
+Wants=basic.target
+
+[Service]
+# Clear any previous ExecStart= settings so we can set a new one
+# (systemd allows multiple ExecStart= lines, but an empty ExecStart= here resets the list)
+ExecStart=
+# ExecStart= with a leading '-' means ignore non-zero exit codes (do not treat them as failures).
+# /sbin/agetty starts a getty on a tty. --noclear prevents clearing the screen before login.
+# --autologin %I automatically logs in the specified user (here %I is the instance name).
+# 38400 is the baud rate; linux is the login terminal type.
+ExecStart=-/sbin/agetty --noclear --autologin %I 38400 linux
+# Set the TTY device to use for this service (here /dev/tty1)
+TTYPath=/dev/tty1
+# Connect the service's standard input to the TTY
+StandardInput=tty
+# Connect the service's standard output to the TTY
+StandardOutput=tty
+# Always restart the service when it exits
+Restart=always
+EOF

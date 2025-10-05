@@ -1,0 +1,14 @@
+xserver-xorg-video-all
+mesa-utils
+mesa-vulkan-drivers
+libva2
+
+# Not available on arm64, might find a way to exclude them there
+xserver-xorg-video-intel
+xserver-xorg-video-amdgpu
+intel-media-va-driver-non-free 
+
+# Proprietary Nvidia drivers
+# https://wiki.debian.org/NvidiaGraphicsDrivers#Version_535.183.01-1
+# Since these fail to install from here, we are doing it in
+# a script...
