@@ -1,0 +1,56 @@
+name: Build Debian Live ISO
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-iso:
+    strategy:
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: debian:latest
+      volumes:
+        - /proc:/proc
+      options: --privileged
+    name: Debian Live ISO Build (${{ matrix.runner }})
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y git sudo live-build curl
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure live-build
+        run: |
+          lb config --debian-installer live \
+                    --distribution bookworm \
+                    --archive-areas "main contrib non-free non-free-firmware" \
+                    --initramfs live-boot \
+                    --mirror-bootstrap http://deb.debian.org/debian/ \
+                    --mirror-chroot http://deb.debian.org/debian/ \
+                    --mirror-binary http://deb.debian.org/debian/ \
+                    --bootappend-live "boot=live components quiet splash"
+
+      - name: Build the ISO
+        run: |
+          lb build
+          iso_file=$(ls *.iso | head -n 1)
+          date_str=$(date +%Y.%m.%d)
+          mv "$iso_file" "gershwin-on-debian-${date_str}-x86_64.iso"
+
+      - name: Upload files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          ls -lh *.iso
+          wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+          bash upload.sh *.iso
