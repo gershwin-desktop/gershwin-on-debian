@@ -3,10 +3,10 @@ mesa-utils
 mesa-vulkan-drivers
 libva2
 
-# Not available on arm64, might find a way to exclude them there
-xserver-xorg-video-intel
-xserver-xorg-video-amdgpu
-intel-media-va-driver-non-free 
+# Everything marked with "#x86_64" (uname -m" will be installed on that architecture only
+#x86_64 xserver-xorg-video-intel
+#x86_64 xserver-xorg-video-amdgpu
+#x86_64 intel-media-va-driver-non-free 
 
 # Proprietary Nvidia drivers
 # https://wiki.debian.org/NvidiaGraphicsDrivers#Version_535.183.01-1
