@@ -11,4 +11,8 @@ sudo tee /etc/apt/sources.list.d/fasttrack.list
 echo "deb http://fasttrack.debian.net/debian-fasttrack/ $(lsb_release -cs)-backports-staging main contrib" |
 sudo tee -a /etc/apt/sources.list.d/fasttrack.list
 sudo apt-get update
-sudo apt-get -y install virtualbox-guest-utils
+if [[ "$(uname -m)" == "i686" ]] || [[ "$(uname -m)" == "x86_64" ]]; then
+    sudo apt-get -y install virtualbox-guest-utils
+else
+    echo "Skipping virtualbox-guest-utils since not on an i686 or x86_64 system"
+fi
