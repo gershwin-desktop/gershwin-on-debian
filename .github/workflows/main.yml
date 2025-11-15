@@ -56,5 +56,5 @@ jobs:
         run: |
           set -e
           ls -lh *.iso
-          wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+          wget -c https://raw.githubusercontent.com/probonopd/uploadtool/refs/heads/copilot/fix-release-deletion-issue/upload.sh
           bash upload.sh *.iso
