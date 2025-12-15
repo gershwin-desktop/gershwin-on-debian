@@ -14,9 +14,6 @@ cd /root
 
 . /System/Library/Makefiles/GNUstep.sh
 
-# TODO: Move to gershwin-build
-sudo apt-get -y install libdbus-1-dev libpam0g-dev libcurl4-openssl-dev
-
 # Everything that comes with the System should be in /System
 mkdir -p /System/Applications /System/Library/Tools
 sudo mv /Local/Applications/* /System/Applications || true
