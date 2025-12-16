@@ -48,7 +48,8 @@ jobs:
           lb build
           iso_file=$(ls *.iso | head -n 1)
           date_str=$(date +%Y.%m.%d)
-          mv "$iso_file" "gershwin-on-debian-${date_str}-x86_64.iso"
+          arch=$(uname -m)
+          mv "$iso_file" "gershwin-on-debian-${date_str}-${arch}.iso"
 
       - name: Upload files
         env:
