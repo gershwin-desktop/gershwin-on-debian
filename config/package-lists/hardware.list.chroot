@@ -6,23 +6,6 @@ mesa-utils
 mesa-vulkan-drivers
 libva2
 
-dmidecode
-eject
-fdisk
-firmware-amd-graphics
-firmware-linux
-firmware-linux-free
-firmware-linux-nonfree
-firmware-misc-nonfree
-firmware-realtek
-hdparm
-hwinfo
-lm-sensors
-lshw
-pciutils
-smartmontools
-usbutils
-
 # Everything marked with "#x86_64" (uname -m" will be installed on that architecture only
 #x86_64 xserver-xorg-video-intel
 #x86_64 xserver-xorg-video-amdgpu
