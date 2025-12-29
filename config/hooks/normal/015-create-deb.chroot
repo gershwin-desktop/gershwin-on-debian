@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-# Create gershwin-desktop deb package containing /System and /Local directories
+# Create gershwin-desktop deb package containing /System
 
 # Get git SHA for version number (this will be passed from the workflow)
 # Default to "0" if not available (though workflow should always set it)
@@ -17,13 +17,9 @@ DEBIAN_DIR="${DEB_DIR}/DEBIAN"
 # Create package directory structure (but not DEBIAN yet)
 mkdir -p "${DEB_DIR}"
 
-# Copy /System and /Local directories to the package
+# Copy /System to the package
 if [ -d /System ]; then
     cp -a /System "${DEB_DIR}/"
-fi
-
-if [ -d /Local ]; then
-    cp -a /Local "${DEB_DIR}/"
 fi
 
 # Calculate installed size (in KB) before creating DEBIAN directory
@@ -45,8 +41,8 @@ Description: Gershwin Desktop Environment
  Gershwin is a desktop environment based on GNUstep that provides
  a classic desktop experience with modern functionality.
  .
- This package contains the Gershwin desktop environment including
- the /System and /Local directory hierarchies with all applications,
+ This package contains the Gershwin desktop environment in the
+ the /System directory hierarchy with all applications,
  libraries, and tools.
 Depends: libobjc4
 EOF
