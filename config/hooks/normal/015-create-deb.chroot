@@ -4,8 +4,8 @@ set -ex
 # Create gershwin-desktop deb package containing /System and /Local directories
 
 # Get git SHA for version number (this will be passed from the workflow)
-# Default to "unknown" if not available
-GIT_SHA="${GIT_SHA:-unknown}"
+# Default to "0" if not available (though workflow should always set it)
+GIT_SHA="${GIT_SHA:-0}"
 DATE_STR=$(date +%Y.%m.%d)
 VERSION="${DATE_STR}+git${GIT_SHA}"
 ARCH=$(dpkg --print-architecture)
