@@ -48,7 +48,7 @@ Description: Gershwin Desktop Environment
  This package contains the Gershwin desktop environment including
  the /System and /Local directory hierarchies with all applications,
  libraries, and tools.
-Depends: gnustep-base-runtime, gnustep-gui-runtime, gnustep-back, libobjc4, xorg
+Depends: libobjc4, xorg-xserver
 EOF
 
 # Create postinst script to set up alternatives
