@@ -84,12 +84,22 @@ chmod 755 "${DEBIAN_DIR}/prerm"
 # Build the package
 dpkg-deb --build "${DEB_DIR}"
 
-# Copy the package to /root which persists after chroot cleanup
-# This location will be accessible from outside the chroot
+# Store the deb in a location accessible from outside the chroot
+# We'll use /var/tmp which is typically a bind mount or persistent location
 DEB_FILE="${DEB_DIR}.deb"
 DEB_NAME="${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
-mkdir -p /root/gershwin-packages
-cp "${DEB_FILE}" "/root/gershwin-packages/${DEB_NAME}"
+mkdir -p /var/tmp/gershwin-packages
+cp "${DEB_FILE}" "/var/tmp/gershwin-packages/${DEB_NAME}"
 
-echo "Created deb package: /root/gershwin-packages/${DEB_NAME}"
-ls -lh "/root/gershwin-packages/${DEB_NAME}"
+echo "Created deb package: /var/tmp/gershwin-packages/${DEB_NAME}"
+ls -lh "/var/tmp/gershwin-packages/${DEB_NAME}"
+
+# Now delete the original /System and /Local directories
+echo "Removing original /System and /Local directories..."
+rm -rf /System /Local
+
+# Install the deb package back into the chroot
+echo "Installing deb package into chroot..."
+dpkg -i "/var/tmp/gershwin-packages/${DEB_NAME}"
+
+echo "Deb package installed successfully"

@@ -2,26 +2,34 @@
 set -ex
 
 # Binary hook to extract deb package from chroot before ISO creation
-# This ensures the deb doesn't become part of the ISO
+# This ensures the deb is available for upload
 
-# Check if the deb package directory exists in the chroot
-if [ -d chroot/root/gershwin-packages ]; then
+# Check if the deb package directory exists in the chroot's /var/tmp
+if [ -d chroot/var/tmp/gershwin-packages ]; then
     echo "Extracting deb packages from chroot..."
     
     # Create output directory in the build root
     mkdir -p gershwin-packages
     
     # Copy all deb packages to the build root
-    cp chroot/root/gershwin-packages/*.deb gershwin-packages/ || true
+    cp chroot/var/tmp/gershwin-packages/*.deb gershwin-packages/ || true
     
     # List what we extracted
     ls -lh gershwin-packages/
     
-    # Remove the deb packages from the chroot so they don't end up in the ISO
-    echo "Removing deb packages from chroot to prevent inclusion in ISO..."
-    rm -rf chroot/root/gershwin-packages
+    # Remove the deb packages from the chroot /var/tmp to clean up
+    echo "Removing deb packages from chroot /var/tmp..."
+    rm -rf chroot/var/tmp/gershwin-packages
     
     echo "Deb extraction complete."
 else
-    echo "No deb packages found in chroot/root/gershwin-packages"
+    echo "No deb packages found in chroot/var/tmp/gershwin-packages"
+    # Also check if it might be in /tmp (fallback)
+    if [ -d chroot/tmp/gershwin-packages ]; then
+        echo "Found in chroot/tmp/gershwin-packages, extracting..."
+        mkdir -p gershwin-packages
+        cp chroot/tmp/gershwin-packages/*.deb gershwin-packages/ || true
+        ls -lh gershwin-packages/
+        rm -rf chroot/tmp/gershwin-packages
+    fi
 fi
