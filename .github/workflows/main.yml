@@ -63,9 +63,9 @@ jobs:
 
       - name: Extract deb package
         run: |
-          # Extract the deb package from the chroot
-          if [ -d chroot/tmp/gershwin-packages ]; then
-            cp chroot/tmp/gershwin-packages/*.deb . || true
+          # Extract the deb package from the chroot /root directory
+          if [ -d chroot/root/gershwin-packages ]; then
+            cp chroot/root/gershwin-packages/*.deb . || true
           fi
           ls -lh *.deb || echo "No deb packages found"
 

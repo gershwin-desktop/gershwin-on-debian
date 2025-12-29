@@ -84,9 +84,12 @@ chmod 755 "${DEBIAN_DIR}/prerm"
 # Build the package
 dpkg-deb --build "${DEB_DIR}"
 
-# Move the package to a well-known location so it can be extracted later
-mkdir -p /tmp/gershwin-packages
-mv "${DEB_DIR}.deb" "/tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+# Copy the package to /root which persists after chroot cleanup
+# This location will be accessible from outside the chroot
+DEB_FILE="${DEB_DIR}.deb"
+DEB_NAME="${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+mkdir -p /root/gershwin-packages
+cp "${DEB_FILE}" "/root/gershwin-packages/${DEB_NAME}"
 
-echo "Created deb package: /tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
-ls -lh "/tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+echo "Created deb package: /root/gershwin-packages/${DEB_NAME}"
+ls -lh "/root/gershwin-packages/${DEB_NAME}"
