@@ -33,6 +33,10 @@ jobs:
           # Uncomment arch-specific entries
           arch=$(uname -m)
           sed -i "s/^#${arch} //g" config/package-lists/hardware.list.chroot
+          # Pass git SHA to the build environment for deb versioning
+          git_sha=$(git rev-parse --short HEAD)
+          echo "export GIT_SHA=${git_sha}" >> config/hooks/normal/000-git-sha.chroot
+          chmod +x config/hooks/normal/000-git-sha.chroot
           # Configure live-build
           lb config --debian-installer live \
                     --distribution bookworm \
@@ -51,11 +55,20 @@ jobs:
           arch=$(uname -m)
           mv "$iso_file" "gershwin-on-debian-${date_str}-${arch}.iso"
 
+      - name: Extract deb package
+        run: |
+          # Extract the deb package from the chroot
+          if [ -d chroot/tmp/gershwin-packages ]; then
+            cp chroot/tmp/gershwin-packages/*.deb . || true
+          fi
+          ls -lh *.deb || echo "No deb packages found"
+
       - name: Upload files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           ls -lh *.iso
+          ls -lh *.deb || echo "No deb packages to upload"
           wget -c https://raw.githubusercontent.com/probonopd/uploadtool/refs/heads/copilot/fix-release-deletion-issue/upload.sh
-          bash upload.sh *.iso
+          bash upload.sh *.iso *.deb

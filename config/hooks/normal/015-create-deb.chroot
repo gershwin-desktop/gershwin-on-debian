@@ -1,0 +1,90 @@
+#!/bin/bash
+set -ex
+
+# Create gershwin-desktop deb package containing /System and /Local directories
+
+# Get git SHA for version number (this will be passed from the workflow)
+# Default to "unknown" if not available
+GIT_SHA="${GIT_SHA:-unknown}"
+DATE_STR=$(date +%Y.%m.%d)
+VERSION="${DATE_STR}+git${GIT_SHA}"
+ARCH=$(dpkg --print-architecture)
+
+PACKAGE_NAME="gershwin-desktop"
+DEB_DIR="/tmp/${PACKAGE_NAME}_${VERSION}_${ARCH}"
+DEBIAN_DIR="${DEB_DIR}/DEBIAN"
+
+# Create package directory structure
+mkdir -p "${DEBIAN_DIR}"
+mkdir -p "${DEB_DIR}"
+
+# Copy /System and /Local directories to the package
+if [ -d /System ]; then
+    cp -a /System "${DEB_DIR}/"
+fi
+
+if [ -d /Local ]; then
+    cp -a /Local "${DEB_DIR}/"
+fi
+
+# Calculate installed size (in KB)
+INSTALLED_SIZE=$(du -sk "${DEB_DIR}" | cut -f1)
+
+# Create control file
+cat > "${DEBIAN_DIR}/control" <<EOF
+Package: ${PACKAGE_NAME}
+Version: ${VERSION}
+Section: x11
+Priority: optional
+Architecture: ${ARCH}
+Installed-Size: ${INSTALLED_SIZE}
+Maintainer: Gershwin Desktop <gershwin-desktop@example.com>
+Description: Gershwin Desktop Environment
+ Gershwin is a desktop environment based on GNUstep that provides
+ a classic desktop experience with modern functionality.
+ .
+ This package contains the Gershwin desktop environment including
+ the /System and /Local directory hierarchies with all applications,
+ libraries, and tools.
+Depends: gnustep-base-runtime, gnustep-gui-runtime, gnustep-back0.31, libobjc4, xorg
+EOF
+
+# Create postinst script to set up alternatives
+cat > "${DEBIAN_DIR}/postinst" <<'EOF'
+#!/bin/bash
+set -e
+
+# Set up alternatives for x-session-manager
+if [ "$1" = "configure" ]; then
+    update-alternatives --install /usr/bin/x-session-manager x-session-manager /System/Library/Scripts/Gershwin.sh 40
+fi
+
+exit 0
+EOF
+
+# Create prerm script to remove alternatives
+cat > "${DEBIAN_DIR}/prerm" <<'EOF'
+#!/bin/bash
+set -e
+
+# Remove alternatives for x-session-manager
+if [ "$1" = "remove" ]; then
+    update-alternatives --remove x-session-manager /System/Library/Scripts/Gershwin.sh || true
+fi
+
+exit 0
+EOF
+
+# Make scripts executable
+chmod 755 "${DEBIAN_DIR}/postinst"
+chmod 755 "${DEBIAN_DIR}/prerm"
+
+# Build the package
+dpkg-deb --build "${DEB_DIR}"
+
+# Move the package to a well-known location so it can be extracted later
+mkdir -p /tmp/gershwin-packages
+mv "${DEB_DIR}.deb" "/tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+
+echo "Created deb package: /tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+ls -lh "/tmp/gershwin-packages/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
