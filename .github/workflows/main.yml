@@ -35,10 +35,11 @@ jobs:
           sed -i "s/^#${arch} //g" config/package-lists/hardware.list.chroot
           # Pass git SHA to the build environment for deb versioning
           git_sha=$(git rev-parse --short HEAD)
-          cat > config/hooks/normal/000-git-sha.chroot <<EOF
+          cat > config/hooks/normal/000-git-sha.chroot <<'EOFHOOK'
           #!/bin/bash
-          export GIT_SHA=${git_sha}
-          EOF
+          export GIT_SHA="GIT_SHA_PLACEHOLDER"
+          EOFHOOK
+          sed -i "s/GIT_SHA_PLACEHOLDER/${git_sha}/g" config/hooks/normal/000-git-sha.chroot
           chmod +x config/hooks/normal/000-git-sha.chroot
           # Configure live-build
           lb config --debian-installer live \

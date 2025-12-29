@@ -40,7 +40,7 @@ Section: x11
 Priority: optional
 Architecture: ${ARCH}
 Installed-Size: ${INSTALLED_SIZE}
-Maintainer: Gershwin Desktop Project <https://github.com/gershwin-desktop>
+Maintainer: Gershwin Desktop Project <gershwin-desktop@users.noreply.github.com>
 Description: Gershwin Desktop Environment
  Gershwin is a desktop environment based on GNUstep that provides
  a classic desktop experience with modern functionality.
