@@ -63,9 +63,10 @@ jobs:
 
       - name: Extract deb package
         run: |
-          # Extract the deb package from the chroot /root directory
-          if [ -d chroot/root/gershwin-packages ]; then
-            cp chroot/root/gershwin-packages/*.deb . || true
+          # The deb package was extracted by the binary hook during ISO build
+          # It should be in the gershwin-packages directory
+          if [ -d gershwin-packages ]; then
+            cp gershwin-packages/*.deb . || true
           fi
           ls -lh *.deb || echo "No deb packages found"
 
