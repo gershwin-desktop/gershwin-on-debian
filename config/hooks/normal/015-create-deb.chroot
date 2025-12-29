@@ -48,7 +48,7 @@ Description: Gershwin Desktop Environment
  This package contains the Gershwin desktop environment including
  the /System and /Local directory hierarchies with all applications,
  libraries, and tools.
-Depends: libobjc4, xorg-xserver
+Depends: libobjc4
 EOF
 
 # Create postinst script to set up alternatives
