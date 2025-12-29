@@ -71,4 +71,9 @@ jobs:
           ls -lh *.iso
           ls -lh *.deb || echo "No deb packages to upload"
           wget -c https://raw.githubusercontent.com/probonopd/uploadtool/refs/heads/copilot/fix-release-deletion-issue/upload.sh
-          bash upload.sh *.iso *.deb
+          # Upload ISO files
+          bash upload.sh *.iso
+          # Upload deb files if they exist
+          if ls *.deb 1> /dev/null 2>&1; then
+            bash upload.sh *.deb
+          fi
