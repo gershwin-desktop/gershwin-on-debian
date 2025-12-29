@@ -14,8 +14,7 @@ PACKAGE_NAME="gershwin-desktop"
 DEB_DIR="/tmp/${PACKAGE_NAME}_${VERSION}_${ARCH}"
 DEBIAN_DIR="${DEB_DIR}/DEBIAN"
 
-# Create package directory structure
-mkdir -p "${DEBIAN_DIR}"
+# Create package directory structure (but not DEBIAN yet)
 mkdir -p "${DEB_DIR}"
 
 # Copy /System and /Local directories to the package
@@ -27,8 +26,11 @@ if [ -d /Local ]; then
     cp -a /Local "${DEB_DIR}/"
 fi
 
-# Calculate installed size (in KB)
+# Calculate installed size (in KB) before creating DEBIAN directory
 INSTALLED_SIZE=$(du -sk "${DEB_DIR}" | cut -f1)
+
+# Now create DEBIAN directory
+mkdir -p "${DEBIAN_DIR}"
 
 # Create control file
 cat > "${DEBIAN_DIR}/control" <<EOF
@@ -46,7 +48,7 @@ Description: Gershwin Desktop Environment
  This package contains the Gershwin desktop environment including
  the /System and /Local directory hierarchies with all applications,
  libraries, and tools.
-Depends: gnustep-base-runtime, gnustep-gui-runtime, gnustep-back0.31, libobjc4, xorg
+Depends: gnustep-base-runtime, gnustep-gui-runtime, gnustep-back, libobjc4, xorg
 EOF
 
 # Create postinst script to set up alternatives
