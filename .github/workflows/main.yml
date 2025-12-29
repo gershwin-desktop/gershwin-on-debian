@@ -30,6 +30,8 @@ jobs:
 
       - name: Configure live-build
         run: |
+          # Fix git ownership issue in container
+          git config --global --add safe.directory /__w/gershwin-on-debian/gershwin-on-debian
           # Uncomment arch-specific entries
           arch=$(uname -m)
           sed -i "s/^#${arch} //g" config/package-lists/hardware.list.chroot
