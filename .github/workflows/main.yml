@@ -47,7 +47,7 @@ jobs:
         run: |
           lb build
           iso_file=$(ls *.iso | head -n 1)
-          date_str=$(date +%Y.%m.%d)
+          date_str=$(date +%Y%m%d%H%M%S)
           arch=$(uname -m)
           mv "$iso_file" "gershwin-on-debian-${date_str}-${arch}.iso"
 
