@@ -21,3 +21,4 @@ x11-utils
 
 # automounter; running 'devmon' will automount removable drives
 udevil
+sshfs
