@@ -6,7 +6,11 @@ mesa-utils
 mesa-vulkan-drivers
 libva2
 
+# Needed for Network prefPane
 network-manager
+
+# Needed for Audio prefPane
+alsa-utils
 
 # Everything marked with "#x86_64" (uname -m" will be installed on that architecture only
 #x86_64 xserver-xorg-video-intel
