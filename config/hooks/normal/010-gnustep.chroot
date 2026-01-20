@@ -9,7 +9,6 @@ git clone https://github.com/gershwin-desktop/gershwin-build.git && cd gershwin-
 find . -type f -exec sed -i -e 's|set -e|set -ex|g' {} \; # Be verbose
 ./bootstrap.sh
 ./checkout.sh
-sed -i -E 's/cmake_minimum_required\(VERSION 3\.[0-9]+(\.\.\.3\.[0-9]+)?\)/cmake_minimum_required(VERSION 3.20...3.99)/g' repos/swift-corelibs-libdispatch/CMakeLists.txt
 sudo -E make install
 cd /root
 
