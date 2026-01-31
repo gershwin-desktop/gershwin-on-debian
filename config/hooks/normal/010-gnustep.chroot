@@ -4,6 +4,7 @@ set -ex
 # Install grub depending on the architecture; this is needed for the installer inside the ISO
 a=$(uname -m)
 case "$a" in x86_64|i?86)p=grub-pc;;aarch64|arm64)p=grub-efi-arm64;;arm*)p=grub-efi-arm;;*)exit 1;;esac
+case "$a" in x86_64|i?86)p=grub-efi-amd64-bin;;aarch64|arm64)p=grub-efi-arm64-bin;;arm*)p=grub-efi-arm-bin;;*)exit 1;;esac
 apt-get update && apt-get install -y grub2-common "$p"
 
 mkdir -p /root
