@@ -8,7 +8,7 @@ cd /root
 git clone https://github.com/gershwin-desktop/gershwin-build.git && cd gershwin-build
 find . -type f -exec sed -i -e 's|set -e|set -ex|g' {} \; # Be verbose
 ./bootstrap.sh
-./checkout.sh
+PINNED=1 ./checkout.sh
 sudo -E make install
 cd /root
 
