@@ -8,10 +8,9 @@ mkdir -p /etc/systemd/system/getty@tty1.service.d/
 
 cat > /etc/systemd/system/getty@tty1.service.d/early.conf <<\EOF
 [Unit]
-# Before= lists units that this service should be started before (i.e., this unit will be ordered earlier)
-Before=network-online.target network.target sshd.service dhcpcd.service
-# Wants= declares a weaker dependency — try to start basic.target but do not fail if it doesn't
-Wants=basic.target
+# Start getty after basic system services are ready
+# This ensures proper ordering without blocking network or other targets
+After=basic.target
 
 [Service]
 # Clear any previous ExecStart= settings so we can set a new one
@@ -28,6 +27,10 @@ TTYPath=/dev/tty1
 StandardInput=tty
 # Connect the service's standard output to the TTY
 StandardOutput=tty
-# Always restart the service when it exits
-Restart=always
+# Connect the service's standard error to the TTY
+StandardError=tty
+# Only restart on actual failures, not on normal exits (e.g., user logout)
+# This prevents infinite restart loops during boot that cause race conditions
+Restart=on-failure
+RestartSec=1s
 EOF
