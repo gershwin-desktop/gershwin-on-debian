@@ -1,0 +1,101 @@
+#!/bin/bash
+set -ex
+
+# Create gershwin-desktop deb package containing /System
+
+# Get git SHA for version number (this will be passed from the workflow)
+# Default to "0" if not available (though workflow should always set it)
+GIT_SHA="${GIT_SHA:-0}"
+DATE_STR=$(date +%Y.%m.%d)
+VERSION="${DATE_STR}+git${GIT_SHA}"
+ARCH=$(dpkg --print-architecture)
+
+PACKAGE_NAME="gershwin-desktop"
+DEB_DIR="/tmp/${PACKAGE_NAME}_${VERSION}_${ARCH}"
+DEBIAN_DIR="${DEB_DIR}/DEBIAN"
+
+# Create package directory structure (but not DEBIAN yet)
+mkdir -p "${DEB_DIR}"
+
+# Copy /System to the package
+if [ -d /System ]; then
+    cp -a /System "${DEB_DIR}/"
+fi
+
+# Calculate installed size (in KB) before creating DEBIAN directory
+INSTALLED_SIZE=$(du -sk "${DEB_DIR}" | cut -f1)
+
+# Now create DEBIAN directory
+mkdir -p "${DEBIAN_DIR}"
+
+# Create control file
+cat > "${DEBIAN_DIR}/control" <<EOF
+Package: ${PACKAGE_NAME}
+Version: ${VERSION}
+Section: x11
+Priority: optional
+Architecture: ${ARCH}
+Installed-Size: ${INSTALLED_SIZE}
+Maintainer: Gershwin Desktop Project <gershwin-desktop@users.noreply.github.com>
+Description: Gershwin Desktop Environment
+ Gershwin is a desktop environment based on GNUstep that provides
+ a classic desktop experience with modern functionality.
+ .
+ This package contains the Gershwin desktop environment in the
+ the /System directory hierarchy with all applications,
+ libraries, and tools.
+Depends: libobjc4
+EOF
+
+# Create postinst script to set up alternatives
+cat > "${DEBIAN_DIR}/postinst" <<'EOF'
+#!/bin/bash
+set -e
+
+# Set up alternatives for x-session-manager
+if [ "$1" = "configure" ]; then
+    update-alternatives --install /usr/bin/x-session-manager x-session-manager /System/Library/Scripts/Gershwin.sh 40
+fi
+
+exit 0
+EOF
+
+# Create prerm script to remove alternatives
+cat > "${DEBIAN_DIR}/prerm" <<'EOF'
+#!/bin/bash
+set -e
+
+# Remove alternatives for x-session-manager
+if [ "$1" = "remove" ]; then
+    update-alternatives --remove x-session-manager /System/Library/Scripts/Gershwin.sh || true
+fi
+
+exit 0
+EOF
+
+# Make scripts executable
+chmod 755 "${DEBIAN_DIR}/postinst"
+chmod 755 "${DEBIAN_DIR}/prerm"
+
+# Build the package
+dpkg-deb --build "${DEB_DIR}"
+
+# Store the deb in a location accessible from outside the chroot
+# We'll use /var/tmp which is typically a bind mount or persistent location
+DEB_FILE="${DEB_DIR}.deb"
+DEB_NAME="${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
+mkdir -p /var/tmp/gershwin-packages
+cp "${DEB_FILE}" "/var/tmp/gershwin-packages/${DEB_NAME}"
+
+echo "Created deb package: /var/tmp/gershwin-packages/${DEB_NAME}"
+ls -lh "/var/tmp/gershwin-packages/${DEB_NAME}"
+
+# Now delete the original /System and /Local directories
+echo "Removing original /System and /Local directories..."
+rm -rf /System /Local
+
+# Install the deb package back into the chroot
+echo "Installing deb package into chroot..."
+dpkg -i "/var/tmp/gershwin-packages/${DEB_NAME}"
+
+echo "Deb package installed successfully"
