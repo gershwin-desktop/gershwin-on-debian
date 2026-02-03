@@ -31,3 +31,12 @@ sudo mv /Local/Library/Tools/* /System/Library/Tools || true
 # By default it starts xterm, but we can tell it which graphical application to start instead
 # using the Debian alternatives system.
 sudo update-alternatives --install /usr/bin/x-session-manager x-session-manager /System/Library/Scripts/Gershwin.sh 40
+
+# We could also set autologin here, but due to upcoming network features we don't
+mkdir -p /Local/Library/Preferences
+cat > /Local/Library/Preferences/LoginWindow.plist <<\EOF
+{
+    lastLoggedInUser = user;
+    lastSession = "/System/Library/Scripts/Gershwin.sh";
+}
+EOF
