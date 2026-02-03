@@ -15,13 +15,13 @@ if [ -f ./boot/grub/config.cfg ]; then
   source ./boot/grub/config.cfg
 fi
 linux  /live/vmlinuz-PLACEHOLDER boot=live components quiet splash findiso=${iso_path}
-initrd /live/initrd.img-PLACEHOLDER
+initrd /live/initrd-PLACEHOLDER
 boot
 EOF
 
 # Prefer most recent files if multiple present
-KERNEL_FILE=$(ls -1 ./live/vmlinuz-* 2>/dev/null | sort -V | tail -n1 || true)
-INITRD_FILE=$(ls -1 ./live/initrd.img-* 2>/dev/null | sort -V | tail -n1 || true)
+KERNEL_FILE=$(ls -1 ./live/vmlinuz* 2>/dev/null | sort -V | tail -n1 || true)
+INITRD_FILE=$(ls -1 ./live/initrd* 2>/dev/null | sort -V | tail -n1 || true)
 
 if [ -n "$KERNEL_FILE" ] && [ -f "$KERNEL_FILE" ]; then
   KERNEL=$(basename "$KERNEL_FILE")
@@ -31,30 +31,26 @@ if [ -n "$INITRD_FILE" ] && [ -f "$INITRD_FILE" ]; then
   INITRD=$(basename "$INITRD_FILE")
 fi
 
-# Fallback: try to parse existing grub config for kernel/initrd names
-if [ -z "$KERNEL" ] && [ -f ./boot/grub/config.cfg ]; then
-  KERNEL=$(sed -n "s/^[[:space:]]*linux[[:space:]]\+\(\/live\/vmlinuz-[^[:space:]]\+\).*$/\1/p" ./boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
-fi
-
-if [ -z "$INITRD" ] && [ -f ./boot/grub/config.cfg ]; then
-  INITRD=$(sed -n "s/^[[:space:]]*initrd[[:space:]]\+\(\/live\/initrd.img-[^[:space:]]\+\).*$/\1/p" ./boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
-fi
-
 GRUBCFG=./boot/grub/grub.cfg
 
 if [ -f "$GRUBCFG" ]; then
   if [ -n "$KERNEL" ]; then
     sed -i "s|vmlinuz-PLACEHOLDER|$KERNEL|g" "$GRUBCFG"
   else
-    echo "Warning: kernel not detected; leaving vmlinuz-PLACEHOLDER" >&2
+    echo "Error: kernel not detected; leaving vmlinuz-PLACEHOLDER" >&2
+    exit 1
   fi
   if [ -n "$INITRD" ]; then
     sed -i "s|initrd-PLACEHOLDER|$INITRD|g" "$GRUBCFG"
   else
-    echo "Warning: initrd not detected; leaving initrd-PLACEHOLDER" >&2
+    echo "Error: initrd not detected; leaving initrd-PLACEHOLDER" >&2
+    exit 1
   fi
 else
-  echo "Warning: $GRUBCFG not found; skipping kernel replacement" >&2
+  echo "Error: $GRUBCFG not found; skipping kernel replacement" >&2
+  exit 1
 fi
+
+cat "$GRUBCFG"
 
 exit 0
