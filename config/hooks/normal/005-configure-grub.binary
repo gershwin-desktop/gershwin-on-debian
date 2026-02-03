@@ -1,15 +1,15 @@
 #!/bin/sh
 set -e
 
-exit 0 #######################################################
+###############################################################
+# When this runs as 005-configure-grub.chroot:
 # cannot create /boot/grub/grub.cfg: Directory nonexistent
 #
-# So the file must be created somewhere else or later?
 # Note that it needs to (also) end up on the ISO
 # at boot/grub/grub.cfg
 # not just inside the filesystem.squashfs,
 # so most likely something like this needs to be run
-# outside of the chroot
+# outside of the chroot, hence the file name ending in .binary
 ##############################################################
 
 # Hook: detect live kernel/initrd names and populate placeholders in /boot/grub/grub.cfg
