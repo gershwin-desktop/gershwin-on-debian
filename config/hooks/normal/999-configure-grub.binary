@@ -1,21 +1,10 @@
 #!/bin/sh
 set -e
 
-###############################################################
-# When this runs as 005-configure-grub.chroot:
-# cannot create /boot/grub/grub.cfg: Directory nonexistent
-#
-# Note that it needs to (also) end up on the ISO
-# at boot/grub/grub.cfg
-# not just inside the filesystem.squashfs,
-# so most likely something like this needs to be run
-# outside of the chroot, hence the file name ending in .binary
-##############################################################
-
 # Hook: detect live kernel/initrd names and populate placeholders in /boot/grub/grub.cfg
-# Runs inside chroot during ISO build
+# Runs outside of chroot during ISO build
 
-cat > /boot/grub/grub.cfg <<\EOF
+cat > ./boot/grub/grub.cfg <<\EOF
 # Keep timeout at zero and avoid menus
 set timeout=0
 set default=0
@@ -31,8 +20,8 @@ boot
 EOF
 
 # Prefer most recent files if multiple present
-KERNEL_FILE=$(ls -1 /live/vmlinuz-* 2>/dev/null | sort -V | tail -n1 || true)
-INITRD_FILE=$(ls -1 /live/initrd.img-* 2>/dev/null | sort -V | tail -n1 || true)
+KERNEL_FILE=$(ls -1 ./live/vmlinuz-* 2>/dev/null | sort -V | tail -n1 || true)
+INITRD_FILE=$(ls -1 ./live/initrd.img-* 2>/dev/null | sort -V | tail -n1 || true)
 
 if [ -n "$KERNEL_FILE" ] && [ -f "$KERNEL_FILE" ]; then
   KERNEL=$(basename "$KERNEL_FILE")
