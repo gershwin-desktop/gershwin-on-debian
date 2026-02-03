@@ -1,6 +1,15 @@
 #!/bin/sh
 set -e
 
+exit 0 #######################################################
+# cannot create /boot/grub/grub.cfg: Directory nonexistent
+#
+# So the file must be created somewhere else or later?
+# Note that it needs to (also) end up on the ISO
+# at boot/grub/grub.cfg
+# not just inside the filesystem.squashfs
+##############################################################
+
 # Hook: detect live kernel/initrd names and populate placeholders in /boot/grub/grub.cfg
 # Runs inside chroot during ISO build
 
