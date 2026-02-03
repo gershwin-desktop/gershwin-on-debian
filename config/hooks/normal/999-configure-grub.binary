@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Hook: detect live kernel/initrd names and populate placeholders in /boot/grub/grub.cfg
+# Hook: detect live kernel/initrd names and populate placeholders in ./boot/grub/grub.cfg
 # Runs outside of chroot during ISO build
 
 cat > ./boot/grub/grub.cfg <<\EOF
@@ -11,8 +11,8 @@ set default=0
 # Keep console output minimal
 terminal_output console
 # Source variables like ${iso_path} if available
-if [ -f /boot/grub/config.cfg ]; then
-  source /boot/grub/config.cfg
+if [ -f ./boot/grub/config.cfg ]; then
+  source ./boot/grub/config.cfg
 fi
 linux  /live/vmlinuz-PLACEHOLDER boot=live components quiet splash findiso=${iso_path}
 initrd /live/initrd.img-PLACEHOLDER
@@ -32,15 +32,15 @@ if [ -n "$INITRD_FILE" ] && [ -f "$INITRD_FILE" ]; then
 fi
 
 # Fallback: try to parse existing grub config for kernel/initrd names
-if [ -z "$KERNEL" ] && [ -f /boot/grub/config.cfg ]; then
-  KERNEL=$(sed -n "s/^[[:space:]]*linux[[:space:]]\+\(\/live\/vmlinuz-[^[:space:]]\+\).*$/\1/p" /boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
+if [ -z "$KERNEL" ] && [ -f ./boot/grub/config.cfg ]; then
+  KERNEL=$(sed -n "s/^[[:space:]]*linux[[:space:]]\+\(\/live\/vmlinuz-[^[:space:]]\+\).*$/\1/p" ./boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
 fi
 
-if [ -z "$INITRD" ] && [ -f /boot/grub/config.cfg ]; then
-  INITRD=$(sed -n "s/^[[:space:]]*initrd[[:space:]]\+\(\/live\/initrd.img-[^[:space:]]\+\).*$/\1/p" /boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
+if [ -z "$INITRD" ] && [ -f ./boot/grub/config.cfg ]; then
+  INITRD=$(sed -n "s/^[[:space:]]*initrd[[:space:]]\+\(\/live\/initrd.img-[^[:space:]]\+\).*$/\1/p" ./boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
 fi
 
-GRUBCFG=/boot/grub/grub.cfg
+GRUBCFG=./boot/grub/grub.cfg
 
 if [ -f "$GRUBCFG" ]; then
   if [ -n "$KERNEL" ]; then
