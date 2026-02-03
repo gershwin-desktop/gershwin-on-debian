@@ -1,0 +1,45 @@
+#!/bin/sh
+set -e
+
+# Hook: detect live kernel/initrd names and populate placeholders in /boot/grub/grub.cfg
+# Runs inside chroot during ISO build
+
+# Prefer most recent files if multiple present
+KERNEL_FILE=$(ls -1 /live/vmlinuz-* 2>/dev/null | sort -V | tail -n1 || true)
+INITRD_FILE=$(ls -1 /live/initrd.img-* 2>/dev/null | sort -V | tail -n1 || true)
+
+if [ -n "$KERNEL_FILE" ] && [ -f "$KERNEL_FILE" ]; then
+  KERNEL=$(basename "$KERNEL_FILE")
+fi
+
+if [ -n "$INITRD_FILE" ] && [ -f "$INITRD_FILE" ]; then
+  INITRD=$(basename "$INITRD_FILE")
+fi
+
+# Fallback: try to parse existing grub config for kernel/initrd names
+if [ -z "$KERNEL" ] && [ -f /boot/grub/config.cfg ]; then
+  KERNEL=$(sed -n "s/^[[:space:]]*linux[[:space:]]\+\(\/live\/vmlinuz-[^[:space:]]\+\).*$/\1/p" /boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
+fi
+
+if [ -z "$INITRD" ] && [ -f /boot/grub/config.cfg ]; then
+  INITRD=$(sed -n "s/^[[:space:]]*initrd[[:space:]]\+\(\/live\/initrd.img-[^[:space:]]\+\).*$/\1/p" /boot/grub/config.cfg | sed 's@.*/@@' | head -n1 || true)
+fi
+
+GRUBCFG=/boot/grub/grub.cfg
+
+if [ -f "$GRUBCFG" ]; then
+  if [ -n "$KERNEL" ]; then
+    sed -i "s|vmlinuz-PLACEHOLDER|$KERNEL|g" "$GRUBCFG"
+  else
+    echo "Warning: kernel not detected; leaving vmlinuz-PLACEHOLDER" >&2
+  fi
+  if [ -n "$INITRD" ]; then
+    sed -i "s|initrd-PLACEHOLDER|$INITRD|g" "$GRUBCFG"
+  else
+    echo "Warning: initrd not detected; leaving initrd-PLACEHOLDER" >&2
+  fi
+else
+  echo "Warning: $GRUBCFG not found; skipping kernel replacement" >&2
+fi
+
+exit 0
