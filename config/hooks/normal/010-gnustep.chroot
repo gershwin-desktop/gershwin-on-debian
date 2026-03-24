@@ -7,16 +7,11 @@ case "$a" in x86_64|i?86)p=grub-pc;;aarch64|arm64)p=grub-efi-arm64;;arm*)p=grub-
 case "$a" in x86_64|i?86)p=grub-efi-amd64-bin;;aarch64|arm64)p=grub-efi-arm64-bin;;arm*)p=grub-efi-arm-bin;;*)exit 1;;esac
 apt-get update && apt-get install -y grub2-common "$p"
 
-mkdir -p /root
-cd /root
-
-# https://github.com/gershwin-desktop/gershwin-build
-git clone https://github.com/gershwin-desktop/gershwin-build.git && cd gershwin-build
-find . -type f -exec sed -i -e 's|set -e|set -ex|g' {} \; # Be verbose
-./bootstrap.sh
-PINNED=1 ./checkout.sh
-sudo -E make install
-cd /root
+# https://github.com/gershwin-desktop/gershwin-developer
+git clone https://github.com/gershwin-desktop/gershwin-developer.git /Developer
+/Developer/Library/Scripts/Bootstrap.sh
+PINNED=1 /Developer/Library/Scripts/Checkout.sh
+cd /Developer && sudo -E make install
 
 . /System/Library/Makefiles/GNUstep.sh
 
