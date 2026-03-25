@@ -14,7 +14,7 @@ LB_APT_INDICES="true"
 
 # $LB_BOOTAPPEND_LIVE: set boot parameters
 # (Default: empty)
-LB_BOOTAPPEND_LIVE="quiet splash"
+LB_BOOTAPPEND_LIVE="quiet splash live-config.noautologin live-config.noroot live-config.nocomponents=user-setup,xinit"
 
 # $LB_BOOTAPPEND_INSTALL: set boot parameters
 # (Default: empty)
