@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y git sudo live-build curl dosfstools parted rsync e2fsprogs
+          apt install -y git sudo live-build curl dosfstools parted rsync e2fsprogs kpartx
 
       - name: Checkout code
         uses: actions/checkout@v4

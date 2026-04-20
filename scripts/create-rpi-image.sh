@@ -49,19 +49,27 @@ cleanup() {
   set +e
   mountpoint -q "$WORKDIR/boot" && umount "$WORKDIR/boot"
   mountpoint -q "$WORKDIR/root" && umount "$WORKDIR/root"
+  [ -n "$LOOP_DEVICE" ] && kpartx -dv "$LOOP_DEVICE"
   [ -n "$LOOP_DEVICE" ] && losetup -d "$LOOP_DEVICE"
   rm -rf "$WORKDIR"
 }
 trap cleanup EXIT
 
-LOOP_DEVICE=$(losetup --show --find --partscan "$OUTPUT_IMAGE")
+# Use a plain loop device (no --partscan) and kpartx to create partition
+# device-mapper nodes (/dev/mapper/loopXp1 etc.) — this works reliably
+# inside Docker containers where udev is not running.
+LOOP_DEVICE=$(losetup --show --find "$OUTPUT_IMAGE")
+kpartx -av "$LOOP_DEVICE"
+LOOP_BASE=$(basename "$LOOP_DEVICE")
+BOOT_PART="/dev/mapper/${LOOP_BASE}p1"
+ROOT_PART="/dev/mapper/${LOOP_BASE}p2"
 
-mkfs.vfat -F32 -n FIRMWARE "${LOOP_DEVICE}p1"
-mkfs.ext4 -F -L rootfs "${LOOP_DEVICE}p2"
+mkfs.vfat -F32 -n FIRMWARE "$BOOT_PART"
+mkfs.ext4 -F -L rootfs "$ROOT_PART"
 
 mkdir -p "$WORKDIR/root" "$WORKDIR/boot"
-mount "${LOOP_DEVICE}p2" "$WORKDIR/root"
-mount "${LOOP_DEVICE}p1" "$WORKDIR/boot"
+mount "$ROOT_PART" "$WORKDIR/root"
+mount "$BOOT_PART" "$WORKDIR/boot"
 
 rsync -aHAX --numeric-ids \
   --exclude='/boot/firmware/*' \
