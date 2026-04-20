@@ -10,7 +10,8 @@ apt-get update && apt-get install -y grub2-common "$p"
 # https://github.com/gershwin-desktop/gershwin-developer
 git clone https://github.com/gershwin-desktop/gershwin-developer.git /Developer
 /Developer/Library/Scripts/Bootstrap.sh
-PINNED=1 /Developer/Library/Scripts/Checkout.sh
+# PINNED=1 /Developer/Library/Scripts/Checkout.sh
+/Developer/Library/Scripts/Checkout.sh
 cd /Developer && sudo -E make install
 
 . /System/Library/Makefiles/GNUstep.sh
