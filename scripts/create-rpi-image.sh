@@ -31,7 +31,7 @@ fi
 BOOT_PARTITION_SIZE_MB=${BOOT_PARTITION_SIZE_MB:-256}
 ROOTFS_USED_MB=$(du -sm "$CHROOT_DIR" | awk '{print $1}')
 # Keep the initial image small while leaving minimal free space before first-boot expansion.
-ROOTFS_SLACK_MB=${ROOTFS_SLACK_MB:-256}
+ROOTFS_SLACK_MB=${ROOTFS_SLACK_MB:-64}
 ROOT_PARTITION_SIZE_MB=$((ROOTFS_USED_MB + ROOTFS_SLACK_MB))
 # Extra safety margin for GPT metadata and partition alignment.
 TOTAL_SIZE_MB=$((BOOT_PARTITION_SIZE_MB + ROOT_PARTITION_SIZE_MB + 32))
@@ -121,3 +121,8 @@ EOF_CFG
 sync
 
 echo "Created Raspberry Pi image: $OUTPUT_IMAGE"
+
+# Zip the image to reduce upload size (raw ext4 compresses well).
+zip "${OUTPUT_IMAGE}.zip" "$OUTPUT_IMAGE"
+rm -f "$OUTPUT_IMAGE"
+echo "Zipped image: ${OUTPUT_IMAGE}.zip"
