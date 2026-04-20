@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y git sudo live-build curl
+          apt install -y git sudo live-build curl dosfstools parted rsync e2fsprogs kpartx zip
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,13 +49,21 @@ jobs:
           iso_file=$(ls *.iso | head -n 1)
           date_str=$(date +%Y%m%d%H%M%S)
           arch=$(uname -m)
-          mv "$iso_file" "gershwin-on-debian-${date_str}-${arch}.iso"
+          iso_output="gershwin-on-debian-${date_str}-${arch}.iso"
+          mv "$iso_file" "$iso_output"
+
+          if [ "$arch" = "aarch64" ] || [ "$arch" = "arm64" ]; then
+            ./scripts/create-rpi-image.sh "gershwin-on-debian-${date_str}-${arch}.img"
+          fi
 
       - name: Upload files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           set -e
-          ls -lh *.iso
+          shopt -s nullglob
+          artifacts=(*.iso *.img.zip)
+          ls -lh "${artifacts[@]}"
           wget -c https://raw.githubusercontent.com/probonopd/uploadtool/refs/heads/copilot/fix-release-deletion-issue/upload.sh
-          bash upload.sh *.iso
+          bash upload.sh "${artifacts[@]}"

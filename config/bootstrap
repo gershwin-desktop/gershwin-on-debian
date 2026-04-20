@@ -118,11 +118,11 @@ LB_ARCHIVES=""
 
 # $LB_ARCHIVE_AREAS: select archive areas to use
 # (Default: main contrib non-free)
-LB_ARCHIVE_AREAS="main contrib non-free"
+LB_ARCHIVE_AREAS="main contrib non-free non-free-firmware"
 
 # $LB_PARENT_ARCHIVE_AREAS: select archive areas to use
 # (Default: main contrib non-free)
-LB_PARENT_ARCHIVE_AREAS="main contrib non-free"
+LB_PARENT_ARCHIVE_AREAS="main contrib non-free non-free-firmware"
 
 # $LB_BOOTSTRAP_QEMU_ARCHITECTURES: architectures to use foreign bootstrap
 # (Default: )
