@@ -61,6 +61,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          ls -lh *.iso *.img 2>/dev/null || ls -lh *.iso
+          shopt -s nullglob
+          artifacts=(*.iso *.img)
+          ls -lh "${artifacts[@]}"
           wget -c https://raw.githubusercontent.com/probonopd/uploadtool/refs/heads/copilot/fix-release-deletion-issue/upload.sh
-          bash upload.sh *.iso *.img
+          bash upload.sh "${artifacts[@]}"
