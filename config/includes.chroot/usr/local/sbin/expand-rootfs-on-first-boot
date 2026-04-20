@@ -1,0 +1,31 @@
+#!/bin/bash
+set -euo pipefail
+
+STATE_FILE=/var/lib/expand-rootfs.done
+
+if [ -e "$STATE_FILE" ]; then
+  exit 0
+fi
+
+ROOT_SOURCE=$(findmnt -n -o SOURCE /)
+if [ -z "$ROOT_SOURCE" ] || [ ! -b "$ROOT_SOURCE" ]; then
+  exit 0
+fi
+
+DISK_NAME=$(lsblk -n -o PKNAME "$ROOT_SOURCE" | head -n1)
+PART_NUM=$(lsblk -n -o PARTNUM "$ROOT_SOURCE" | head -n1)
+
+if [ -z "$DISK_NAME" ] || [ -z "$PART_NUM" ]; then
+  exit 0
+fi
+
+DISK_PATH="/dev/$DISK_NAME"
+
+parted -s "$DISK_PATH" resizepart "$PART_NUM" 100%
+partprobe "$DISK_PATH" || true
+udevadm settle || true
+resize2fs "$ROOT_SOURCE"
+
+mkdir -p "$(dirname "$STATE_FILE")"
+touch "$STATE_FILE"
+systemctl disable expand-rootfs.service || true
