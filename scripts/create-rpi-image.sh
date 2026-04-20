@@ -28,10 +28,10 @@ if [ -z "$KERNEL_FILE" ] || [ -z "$INITRD_FILE" ]; then
 fi
 
 # Reserve enough FAT space for firmware, kernel, initramfs and future kernel updates.
-BOOT_PARTITION_SIZE_MB=256
+BOOT_PARTITION_SIZE_MB=${BOOT_PARTITION_SIZE_MB:-256}
 ROOTFS_USED_MB=$(du -sBM "$CHROOT_DIR" | awk '{gsub(/M/,"",$1); print $1}')
 # Keep the initial image small while leaving minimal free space before first-boot expansion.
-ROOTFS_SLACK_MB=256
+ROOTFS_SLACK_MB=${ROOTFS_SLACK_MB:-256}
 ROOT_PARTITION_SIZE_MB=$((ROOTFS_USED_MB + ROOTFS_SLACK_MB))
 # Extra safety margin for GPT metadata and partition alignment.
 TOTAL_SIZE_MB=$((BOOT_PARTITION_SIZE_MB + ROOT_PARTITION_SIZE_MB + 32))
