@@ -13,8 +13,8 @@ if [ -z "$ROOT_SOURCE" ] || [ ! -b "$ROOT_SOURCE" ]; then
   exit 0
 fi
 
-DISK_NAME=$(lsblk -n -o PKNAME "$ROOT_SOURCE" | head -n1)
-PART_NUM=$(lsblk -n -o PARTNUM "$ROOT_SOURCE" | head -n1)
+DISK_NAME=$(lsblk -n -o PKNAME "$ROOT_SOURCE")
+PART_NUM=$(lsblk -n -o PARTNUM "$ROOT_SOURCE")
 
 if [ -z "$DISK_NAME" ] || [ -z "$PART_NUM" ]; then
   echo "expand-rootfs: could not determine disk or partition for $ROOT_SOURCE, skipping" >&2
@@ -29,9 +29,11 @@ if ! parted -s "$DISK_PATH" resizepart "$PART_NUM" 100%; then
 fi
 if ! partprobe "$DISK_PATH"; then
   echo "expand-rootfs: partprobe failed for $DISK_PATH" >&2
+  exit 1
 fi
 if ! udevadm settle; then
   echo "expand-rootfs: udevadm settle failed" >&2
+  exit 1
 fi
 if ! resize2fs "$ROOT_SOURCE"; then
   echo "expand-rootfs: failed to resize filesystem on $ROOT_SOURCE" >&2
