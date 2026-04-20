@@ -9,6 +9,7 @@ fi
 
 ROOT_SOURCE=$(findmnt -n -o SOURCE /)
 if [ -z "$ROOT_SOURCE" ] || [ ! -b "$ROOT_SOURCE" ]; then
+  echo "expand-rootfs: root source is not a block device ($ROOT_SOURCE), skipping" >&2
   exit 0
 fi
 
@@ -16,6 +17,7 @@ DISK_NAME=$(lsblk -n -o PKNAME "$ROOT_SOURCE" | head -n1)
 PART_NUM=$(lsblk -n -o PARTNUM "$ROOT_SOURCE" | head -n1)
 
 if [ -z "$DISK_NAME" ] || [ -z "$PART_NUM" ]; then
+  echo "expand-rootfs: could not determine disk or partition for $ROOT_SOURCE, skipping" >&2
   exit 0
 fi
 
