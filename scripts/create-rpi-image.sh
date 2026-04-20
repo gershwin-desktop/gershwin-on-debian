@@ -85,10 +85,19 @@ if [ ! -f "$WORKDIR/boot/$INITRD_BASENAME" ]; then
   cp "$INITRD_FILE" "$WORKDIR/boot/$INITRD_BASENAME"
 fi
 
-cat > "$WORKDIR/root/etc/fstab" <<'FSTAB'
+FSTAB_PATH="$WORKDIR/root/etc/fstab"
+EXTRA_FSTAB=$(mktemp)
+if [ -f "$FSTAB_PATH" ]; then
+  awk '$2 != "/" && $2 != "/boot/firmware" {print}' "$FSTAB_PATH" > "$EXTRA_FSTAB"
+fi
+cat > "$FSTAB_PATH" <<'FSTAB'
 LABEL=rootfs / ext4 defaults,noatime 0 1
 LABEL=FIRMWARE /boot/firmware vfat defaults 0 2
 FSTAB
+if [ -s "$EXTRA_FSTAB" ]; then
+  cat "$EXTRA_FSTAB" >> "$FSTAB_PATH"
+fi
+rm -f "$EXTRA_FSTAB"
 
 cat > "$WORKDIR/boot/cmdline.txt" <<'CMDLINE'
 console=serial0,115200 console=tty1 root=LABEL=rootfs rootfstype=ext4 fsck.repair=yes rootwait rw quiet splash
