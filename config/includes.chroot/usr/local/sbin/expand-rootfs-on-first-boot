@@ -24,11 +24,15 @@ fi
 DISK_PATH="/dev/$DISK_NAME"
 
 if ! parted -s "$DISK_PATH" resizepart "$PART_NUM" 100%; then
-  echo "expand-rootfs: failed to resize partition ${DISK_PATH}${PART_NUM}" >&2
+  echo "expand-rootfs: failed to resize partition backing $ROOT_SOURCE" >&2
   exit 1
 fi
-partprobe "$DISK_PATH" || true
-udevadm settle || true
+if ! partprobe "$DISK_PATH"; then
+  echo "expand-rootfs: partprobe failed for $DISK_PATH" >&2
+fi
+if ! udevadm settle; then
+  echo "expand-rootfs: udevadm settle failed" >&2
+fi
 if ! resize2fs "$ROOT_SOURCE"; then
   echo "expand-rootfs: failed to resize filesystem on $ROOT_SOURCE" >&2
   exit 1

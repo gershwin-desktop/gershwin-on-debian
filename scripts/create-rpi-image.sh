@@ -23,7 +23,7 @@ KERNEL_FILE=$(ls -1 "$CHROOT_DIR"/boot/vmlinuz-* 2>/dev/null | sort -V | tail -n
 INITRD_FILE=$(ls -1 "$CHROOT_DIR"/boot/initrd.img-* 2>/dev/null | sort -V | tail -n1 || true)
 
 if [ -z "$KERNEL_FILE" ] || [ -z "$INITRD_FILE" ]; then
-  echo "Error: could not detect kernel/initramfs in '$CHROOT_DIR/boot'." >&2
+  echo "Error: could not detect kernel/initrd in '$CHROOT_DIR/boot'." >&2
   exit 1
 fi
 
