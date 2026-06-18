@@ -34,3 +34,6 @@ cat > /Local/Library/Preferences/LoginWindow.plist <<\EOF
     lastSession = "/System/Library/Scripts/Gershwin.sh";
 }
 EOF
+
+# Allow empty password for sshd
+sed -i 's/^[[:space:]#]*PermitEmptyPasswords[[:space:]]*.*/PermitEmptyPasswords yes/' /etc/ssh/ssh_config
