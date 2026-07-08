@@ -26,5 +26,5 @@ sshfs
 # Sharing
 openssh-server
 
-libao
+libao4
 libao-dev
