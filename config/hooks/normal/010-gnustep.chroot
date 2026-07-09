@@ -20,7 +20,6 @@ mkdir -p /System/Applications /System/Library/Tools
 sudo mv /Local/Applications/* /System/Applications || true
 sudo mv /Local/Library/Tools/* /System/Library/Tools || true
 
-<<<<<<< Updated upstream
 # Initialize Directory Services (creates built-in admin user with no password)
 dscli init
 
@@ -38,15 +37,7 @@ EOF
 
 # Allow empty password for sshd
 sed -i 's/^[[:space:]#]*PermitEmptyPasswords[[:space:]]*.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
-=======
-# On Debian-live based systems, Xorg gets started automatically 
-# by /etc/profile.d/zz-live-config_xinit.sh which is created 
-# by /lib/live/config/0140-xinit from the live-config package.
-# By default it starts xterm, but we can tell it which graphical application to start instead
-# using the Debian alternatives system.
-sudo update-alternatives --install /usr/bin/x-session-manager x-session-manager /System/Library/Scripts/Gershwin.sh 40
 
 # Allow password authentication and empty password for sshd
 chroot "${WORK}/rootfs" sed -i 's/^[[:space:]#]*PasswordAuthentication[[:space:]]*.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 chroot "${WORK}/rootfs" sed -i 's/^[[:space:]#]*PermitEmptyPasswords[[:space:]]*.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
->>>>>>> Stashed changes
