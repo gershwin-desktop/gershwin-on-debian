@@ -8,6 +8,8 @@ libva2
 
 # Needed for Network prefPane
 network-manager
+iw
+wireless-tools
 
 # Needed for Audio prefPane
 alsa-utils
