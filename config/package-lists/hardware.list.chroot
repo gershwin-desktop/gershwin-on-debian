@@ -26,3 +26,5 @@ alsa-utils
 
 #aarch64 raspi-firmware
 parted
+
+qemu-guest-agent
